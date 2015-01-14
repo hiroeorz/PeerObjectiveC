@@ -125,7 +125,7 @@ This library is modified from the [AppRTCDemo](https://code.google.com/p/webrtc/
 
     ```objectivec
     NSDictionary *config = @{@"host": @"0.peerjs.com",
-                             @"port": @(9000),
+                             @"port": @(80),
                              @"key": @"peerjs",
                              @"path": @"/",
                              @"secure": @(NO),
