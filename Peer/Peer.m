@@ -49,6 +49,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 #define kMessageQueueCapacity 10
 #define kDefaultHost @"0.peerjs.com"
 #define kDefaultPath @"/"
+#define kDefaultKey @"peerjs"
 #define kWsURLTemplate @"%@://%@:%ld%@/peerjs?key=%@&id=%@&token=%@"
 #define kDefaultSTUNServerUrl @"stun:stun.l.google.com:19302"
 
@@ -101,6 +102,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
       _id = nil;
       _path = kDefaultPath;
       _host = kDefaultHost;
+      _key = kDefaultKey;
       _port = 0;
       _secure = NO;
       _webSock = nil;
@@ -209,8 +211,6 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 {
   NSLog(@"WebSocket opened!");
   _isInitiator = NO;
-  _state = kPeerClientStateConnected;
-  [self drainMessages];
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)str
@@ -256,7 +256,13 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 - (void)processOpenWithMessage:(NSDictionary *)message
 {
   NSLog(@"Open connection Signaling server done.");
-  if (_onOpen) { _onOpen(_id); }
+
+  _state = kPeerClientStateConnected;
+  [self drainMessages];
+
+  if (_onOpen) {
+    _onOpen(_id);
+  }
 }
 
 - (void)processCandidateWithMessage:(NSDictionary *)message
