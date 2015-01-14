@@ -50,7 +50,9 @@ This library is modified from the [AppRTCDemo](https://code.google.com/p/webrtc/
 
 4. Initialize ```RTCPeerConnectionFactory``` in your AppDelegate.m
 
-    ```objectivec:AppDelegate.m
+    AppDelegate.m
+
+    ```objectivec
     #import "RTCPeerConnectionFactory.h"
 
     - (BOOL)application:(UIApplication *)application 
@@ -62,7 +64,9 @@ This library is modified from the [AppRTCDemo](https://code.google.com/p/webrtc/
     ```
 5. And create instance of ```Peer``` class in ViewController.
 
-    ```objectivec:ViewController.m
+    ViewController.m
+
+    ```objectivec
     #import <AVFoundation/AVFoundation.h>
     #import "Peer.h"
 
