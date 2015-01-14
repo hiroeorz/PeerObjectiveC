@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6211" systemVersion="14A298i" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6204"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -15,11 +15,72 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dcQ-BE-2JS">
+                                <rect key="frame" x="125" y="108" width="361" height="250"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="4Fj-Rg-gCp">
+                                <rect key="frame" x="125" y="70" width="361" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="Pso-fv-bPq"/>
+                                    <constraint firstAttribute="width" constant="200" id="rOm-1F-skn"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="JcC-oX-4oj"/>
+                                </connections>
+                            </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Your Id" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LQl-xC-fTN">
+                                <rect key="frame" x="125" y="36" width="110" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="gJG-sk-nli">
+                                <rect key="frame" x="302" y="32" width="184" height="30"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="135" id="0tm-gp-yU7"/>
+                                    <constraint firstAttribute="height" constant="30" id="4a4-45-HXA"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PTt-aP-pTj">
+                                <rect key="frame" x="231" y="375" width="139" height="30"/>
+                                <state key="normal" title="disconnect">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="finishCall:" destination="BYZ-38-t0r" eventType="touchUpInside" id="otc-aw-qtU"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="dcQ-BE-2JS" firstAttribute="top" secondItem="4Fj-Rg-gCp" secondAttribute="bottom" constant="11" id="1BW-Yj-ke7"/>
+                            <constraint firstAttribute="centerX" secondItem="4Fj-Rg-gCp" secondAttribute="centerX" id="7NE-bM-rtH"/>
+                            <constraint firstItem="4Fj-Rg-gCp" firstAttribute="leading" secondItem="LQl-xC-fTN" secondAttribute="leading" id="OzU-2M-l6t"/>
+                            <constraint firstItem="gJG-sk-nli" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="12" id="Pv5-4F-Zk0"/>
+                            <constraint firstItem="4Fj-Rg-gCp" firstAttribute="trailing" secondItem="gJG-sk-nli" secondAttribute="trailing" id="VxS-le-kfn"/>
+                            <constraint firstAttribute="centerX" secondItem="dcQ-BE-2JS" secondAttribute="centerX" id="dXL-kU-hw5"/>
+                            <constraint firstItem="PTt-aP-pTj" firstAttribute="top" secondItem="dcQ-BE-2JS" secondAttribute="bottom" constant="8" id="e5b-7Q-qCv"/>
+                            <constraint firstItem="LQl-xC-fTN" firstAttribute="bottom" secondItem="gJG-sk-nli" secondAttribute="bottom" id="h8g-2W-Mgw"/>
+                            <constraint firstAttribute="centerX" secondItem="PTt-aP-pTj" secondAttribute="centerX" id="rhW-as-gqI"/>
+                            <constraint firstItem="4Fj-Rg-gCp" firstAttribute="top" secondItem="gJG-sk-nli" secondAttribute="bottom" constant="8" id="yX5-t8-bS8"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="blackView" destination="dcQ-BE-2JS" id="qQR-lE-j1K"/>
+                        <outlet property="idField" destination="gJG-sk-nli" id="uOI-Mw-7Yd"/>
+                        <outlet property="roomInput" destination="4Fj-Rg-gCp" id="UVW-02-YRE"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="382" y="284"/>
         </scene>
     </scenes>
 </document>
