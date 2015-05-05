@@ -65,6 +65,8 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 @property(nonatomic, strong) SRWebSocket *webSock;
 @property(nonatomic, strong) void(^webSocketOpenCallBack)(NSString *connectionId, NSError *error);
 @property(nonatomic) NSInteger cameraPosition;
+@property(nonatomic, strong) RTCVideoTrack *localVideoTrack;
+@property(nonatomic, strong) RTCMediaStream *localMediaStream;
 @end
 
 @implementation Peer
@@ -93,6 +95,8 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 @synthesize onError = _onError;
 @synthesize onReceiveRemoteVideoTrack = _onReceiveRemoteVideoTrack;
 @synthesize onReceiveLocalVideoTrack = _onReceiveLocalVideoTrack;
+@synthesize localVideoTrack = _localVideoTrack;
+@synthesize localMediaStream = _localMediaStream;
 
 - (instancetype)initWithConfig:(NSDictionary *)args {
     if (self = [super init]) {
@@ -108,6 +112,8 @@ static NSInteger kPeerClientErrorSetSDP = -4;
       _webSock = nil;
       _isInitiator = NO;
       _cameraPosition = AVCaptureDevicePositionFront;
+      _localVideoTrack = nil;
+      _localMediaStream = nil;
 
       if ([args objectForKey:@"key"]   ) {_key = [args objectForKey:@"key"];}
       if ([args objectForKey:@"id"]    ) {_id = [args objectForKey:@"id"];}
@@ -162,9 +168,9 @@ static NSInteger kPeerClientErrorSetSDP = -4;
   _webSocketOpenCallBack = block;
 
   if (_id == nil || [_id isMemberOfClass:[NSNull class]]) {
-    __block typeof(self) __self = self;
+    //__block typeof(self) __self = self;
     [self getId:^(NSString *clientId) {
-      [__self openWebSocket];
+      [self openWebSocket];
     }];
   }
   else {
@@ -224,6 +230,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean
 {
   NSLog(@"WebSocket closed. reason:%@", reason);
+  [self deleteLocalMediaStream];
   _state = kPeerClientStateDisconnected;
 }
 
@@ -239,6 +246,8 @@ static NSInteger kPeerClientErrorSetSDP = -4;
   if (_onClose) {
     _onClose();
   }
+
+  [self deleteLocalMediaStream];
 }
 
 #pragma process signaling messsage methods
@@ -251,6 +260,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
   else if ([@"CANDIDATE" isEqualToString:type]) {[self processCandidateWithMessage:message];}
   else if ([@"OFFER" isEqualToString:type])     {[self processOfferWithMessage:message];}
   else if ([@"ANSWER" isEqualToString:type])    {[self processAnswerWithMessage:message];}
+  else if ([@"LEAVE" isEqualToString:type])     {[self processLeaveWithMessage:message];}
 }
 
 - (void)processOpenWithMessage:(NSDictionary *)message
@@ -303,6 +313,11 @@ static NSInteger kPeerClientErrorSetSDP = -4;
   [_peerConnection setRemoteDescriptionWithDelegate:self sessionDescription:sdp];
 }
 
+- (void)processLeaveWithMessage:(NSDictionary *)message
+{
+  [self disconnect];
+}
+
 # pragma --
 
 - (void)disconnect
@@ -318,6 +333,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
   _messageQueue = [NSMutableArray array];
   _peerConnection = nil;
   _state = kPeerClientStateDisconnected;
+  [_webSock close];
 }
 
 #pragma mark - RTCPeerConnectionDelegate
@@ -559,7 +575,22 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 
 #endif
   [localStream addAudioTrack:[_factory audioTrackWithID:@"ARDAMSa0"]];
+  _localVideoTrack = localVideoTrack;
+  _localMediaStream = localStream;
   return localStream;
+}
+
+/**
+ * @brief ローカルのビデオストリームを削除する
+ */
+- (void)deleteLocalMediaStream {
+  NSLog(@"deleteLocalMediaStream");
+
+  if (_localMediaStream != nil && _localVideoTrack != nil) {
+    [_localMediaStream removeVideoTrack:_localVideoTrack];
+    _localVideoTrack = nil;
+    NSLog(@"local video track remove from media stream");
+  }
 }
 
 #pragma mark - Defaults
@@ -634,7 +665,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 
   dispatch_async(queue, ^{
     NSString *proto = _secure ? @"https" : @"http";
-    NSString *urlStr = [[NSString alloc] initWithFormat:@"%@://%@:%ld%@/%@/id", proto, _host, _port, _path, _key];
+    NSString *urlStr = [[NSString alloc] initWithFormat:@"%@://%@:%ld%@/%@/id", proto, _host, (long)_port, _path, _key];
     NSLog(@"API URL: %@", urlStr);
     NSURL *url = [NSURL URLWithString:urlStr];
     NSString *clientId = [[NSString alloc] initWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
