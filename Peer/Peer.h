@@ -53,16 +53,18 @@ typedef NS_ENUM(NSInteger, PeerClientState) {
 @property(nonatomic) BOOL secure;
 @property(nonatomic) NSInteger port;
 @property(nonatomic, strong) void(^onOpen)(NSString *id);
-@property(nonatomic, strong) void(^onCall)(RTCSessionDescription *sdp);
+@property(nonatomic, strong) void(^onCall)(RTCSessionDescription *sdp, NSDictionary *metadata);
 @property(nonatomic, strong) void(^onClose)();
 @property(nonatomic, strong) void(^onError)(NSError *error);
+@property(nonatomic, strong) void(^onLeave)();
 @property(nonatomic, strong) void(^onReceiveRemoteVideoTrack)(RTCVideoTrack *remoteVideoTrack);
 @property(nonatomic, strong) void(^onReceiveLocalVideoTrack)(RTCVideoTrack *localVideoTrack);
 
 - (instancetype)initWithConfig:(NSDictionary *)args;
 - (void)start:(void (^)())block;
-- (void)callWithId:(NSString*)dstId;
+- (void)callWithId:(NSString*)dstId metadata:(NSDictionary *)metadata;
 - (void)answerWithSdp:(RTCSessionDescription *)sdp;
 - (void)disconnect;
+- (void)setCaptureDevicePosition:(NSInteger)pos;
 
 @end

@@ -59,6 +59,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 @property(nonatomic, strong) RTCPeerConnectionFactory *factory;
 @property(nonatomic, strong) NSMutableArray *messageQueue;
 @property(nonatomic, strong) NSString *dstId;
+@property(nonatomic, strong) NSDictionary *metadata;
 @property(nonatomic, assign) BOOL isInitiator;
 @property(nonatomic, strong) NSMutableArray *iceServers;
 @property(nonatomic, strong) NSString *connectionId;
@@ -76,6 +77,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 @synthesize factory = _factory;
 @synthesize messageQueue = _messageQueue;
 @synthesize dstId = _dstId;
+@synthesize metadata = _metadata;
 @synthesize isInitiator = _isInitiator;
 @synthesize iceServers = _iceServers;
 
@@ -92,6 +94,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 @synthesize onOpen = _onOpen;
 @synthesize onCall = _onCall;
 @synthesize onClose = _onClose;
+@synthesize onLeave = _onLeave;
 @synthesize onError = _onError;
 @synthesize onReceiveRemoteVideoTrack = _onReceiveRemoteVideoTrack;
 @synthesize onReceiveLocalVideoTrack = _onReceiveLocalVideoTrack;
@@ -178,9 +181,10 @@ static NSInteger kPeerClientErrorSetSDP = -4;
   }
 }
 
-- (void)callWithId:(NSString*)dstId
+- (void)callWithId:(NSString*)dstId metadata:(NSDictionary *)metadata
 {
   _dstId = dstId;
+  _metadata = metadata;
   _isInitiator = YES;
   _connectionId = [_id stringByAppendingString:[self randStringWithMaxLenght:20]];
   [self setupLocalMedia];
@@ -196,7 +200,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 - (void)setCaptureDevicePosition:(NSInteger)pos
 {
   if (pos != AVCaptureDevicePositionBack && pos != AVCaptureDevicePositionFront) {
-    NSString *errorMsg = [[NSString alloc] initWithFormat:@"Invalid CaptureDevicePosition: %ld", pos];
+    NSString *errorMsg = [[NSString alloc] initWithFormat:@"Invalid CaptureDevicePosition: %ld", (long)pos];
     @throw errorMsg;
   }
 
@@ -254,6 +258,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 
 - (void)processSignalingMessage:(NSDictionary *)message
 {
+  NSLog(@"RECV MESSAGE: %@", message);
   NSString *type = (NSString *)[message objectForKey:@"type"];
 
   if      ([@"OPEN" isEqualToString:type])      {[self processOpenWithMessage:message];}
@@ -292,6 +297,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
   NSDictionary *payload = [message objectForKey:@"payload"];
   NSDictionary *sdpObj = [payload objectForKey:@"sdp"];
   NSString *sdpMessage = [sdpObj objectForKey:@"sdp"];
+  NSDictionary *metadata = [payload objectForKey:@"metadata"];
   NSString *connectionType = [payload objectForKey:@"type"];
   _connectionId = [payload objectForKey:@"connectionId"];
   _dstId = [message objectForKey:@"src"];
@@ -300,7 +306,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
     NSLog(@"connectionType: %@", connectionType);
     [self setupLocalMedia];
     RTCSessionDescription *sdp = [[RTCSessionDescription alloc] initWithType:@"offer" sdp:sdpMessage];
-    if(_onCall) { _onCall(sdp); }
+    if(_onCall) { _onCall(sdp, metadata); }
   }
 }
 
@@ -315,7 +321,9 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 
 - (void)processLeaveWithMessage:(NSDictionary *)message
 {
-  [self disconnect];
+  if (_onLeave) {
+    _onLeave();
+  }
 }
 
 # pragma --
@@ -463,14 +471,14 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 
 #pragma mark - Private
 
-- (void)sendOffer {
+- (void)sendOffer
+{
   [_peerConnection createOfferWithDelegate:self
                                constraints:[self defaultOfferConstraints]];
 }
 
 - (void)sendOfferMessage:(NSString *)sdpStr
 {
-  NSLog(@"sdp: %@", sdpStr);
   NSDictionary *message = @{@"type": @"OFFER",
                             @"src": _id,
                             @"dst": _dstId,
@@ -479,6 +487,7 @@ static NSInteger kPeerClientErrorSetSDP = -4;
                                 @"serialization": @"binary",
                                 @"type": @"media",
                                 @"connectionId": _connectionId,
+                                @"metadata": _metadata,
                                 @"sdp": @{@"sdp": sdpStr, @"type": @"offer"} }
                             };
   [self sendMessage:message];
@@ -486,7 +495,6 @@ static NSInteger kPeerClientErrorSetSDP = -4;
 
 - (void)sendAnswerMessage:(NSString *)sdpStr
 {
-  NSLog(@"sdp: %@", sdpStr);
   NSDictionary *message = @{@"type": @"ANSWER",
                             @"src": _id,
                             @"dst": _dstId,
